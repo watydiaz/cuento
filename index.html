@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Actividad N°2: Mi secuencia didactica la magia de la literatur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #ffe9b0, #1b2b4b);
+      color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 960px;
+      width: 100%;
+      margin-top: -30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff7d5;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #f5f5f5;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    /* Contenedor del libro */
+    .book-wrapper {
+      perspective: 2500px;
+      position: relative;
+    }
+
+    .book {
+      position: relative;
+      background: #fdfaf4;
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      min-height: 380px;
+      max-height: 520px;
+      transform-style: preserve-3d;
+      transition: all 0.85s cubic-bezier(0.4, 0.0, 0.2, 1);
+      transform-origin: center center;
+    }
+
+    .page-content {
+      padding: 22px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.85s cubic-bezier(0.4, 0.0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .book.turn-left .page-content {
+      transform: translateX(-10px);
+    }
+
+    .book.turn-right .page-content {
+      transform: translateX(10px);
+    }
+
+    .page-title {
+      font-size: 1.1rem;
+      color: #354063;
+      margin-bottom: 10px;
+    }
+
+    .page-text {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .page-question {
+      font-size: 0.85rem;
+      color: #5b647f;
+      background: #eef2ff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+
+    .page-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #7b869f;
+      margin-top: 8px;
+    }
+
+    /* Lado de la ilustración */
+    .page-illustration {
+      position: relative;
+      background: linear-gradient(160deg, #1b2740, #30486e);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      transition: transform 0.85s cubic-bezier(0.4, 0.0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .book.turn-left .page-illustration {
+      transform: translateX(10px) scale(0.98);
+    }
+
+    .book.turn-right .page-illustration {
+      transform: translateX(-10px) scale(0.98);
+    }
+
+    .page-illustration img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Luciérnaga interactiva */
+    .firefly {
+      position: absolute;
+      bottom: 18px;
+      right: 22px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fffde7, #f6c94c 55%, #b5761a 80%);
+      box-shadow: 0 0 14px rgba(255, 231, 135, 0.9);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4b2b00;
+      font-size: 1.4rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.25s;
+    }
+
+    .firefly.off {
+      opacity: 0.35;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+      background: radial-gradient(circle at 30% 30%, #f7f7f7, #bdbdbd 60%, #757575 85%);
+    }
+
+    .firefly:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .firefly-hint {
+      position: absolute;
+      bottom: 75px;
+      right: 20px;
+      color: #fff9c4;
+      font-size: 0.75rem;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Controles del libro */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      color: #f0f4ff;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      background: #fecd57;
+      color: #3c2d18;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .btn:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      background: #ffe082;
+    }
+
+    .page-indicator {
+      letter-spacing: 0.05em;
+    }
+
+    /* Sección del autor */
+    .author-section {
+      text-align: center;
+      margin-top: 25px;
+      padding: 15px;
+      color: #fff7d5;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .author-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #fecd57;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .author-label {
+      font-weight: 600;
+      color: #fecd57;
+      margin-bottom: 5px;
+    }
+
+    .author-name {
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* Juego de Memoria */
+    .memory-game-section {
+      margin-top: 40px;
+      padding: 25px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .memory-game-title {
+      text-align: center;
+      color: #fecd57;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .memory-game-subtitle {
+      text-align: center;
+      color: #fff7d5;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .memory-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+      color: #fff7d5;
+      font-size: 0.95rem;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: #fecd57;
+      font-size: 1.1rem;
+    }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .memory-card {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #fecd57, #f6c94c);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .memory-card:hover:not(.flipped):not(.matched) {
+      transform: scale(1.05);
+    }
+
+    .memory-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .memory-card.matched {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-front {
+      background: linear-gradient(135deg, #fecd57, #f6c94c);
+      font-size: 2.5rem;
+    }
+
+    .card-back {
+      background: #fff;
+      transform: rotateY(180deg);
+      padding: 5px;
+    }
+
+    .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .memory-controls {
+      text-align: center;
+    }
+
+    .reset-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      background: #fecd57;
+      color: #3c2d18;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .reset-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      background: #ffe082;
+    }
+
+    .win-message {
+      text-align: center;
+      color: #fecd57;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .win-message.show {
+      opacity: 1;
+    }
+
+    /* Animación de "pasar página" */
+    .book.turn-left {
+      transform: rotateY(-15deg) scale(0.95) translateX(-25px);
+      box-shadow: -15px 20px 60px rgba(0, 0, 0, 0.5), 
+                  inset 5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .book.turn-right {
+      transform: rotateY(15deg) scale(0.95) translateX(25px);
+      box-shadow: 15px 20px 60px rgba(0, 0, 0, 0.5),
+                  inset -5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Efecto de página volteándose */
+    .book::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(0, 0, 0, 0.1) 50%, 
+        rgba(0, 0, 0, 0.2) 100%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.85s cubic-bezier(0.4, 0.0, 0.2, 1);
+      z-index: 10;
+    }
+
+    .book.turn-left::before {
+      right: 0;
+      opacity: 1;
+      transform-origin: left center;
+    }
+
+    .book.turn-right::before {
+      left: 0;
+      opacity: 1;
+      background: linear-gradient(270deg, 
+        transparent 0%, 
+        rgba(0, 0, 0, 0.1) 50%, 
+        rgba(0, 0, 0, 0.2) 100%);
+      transform-origin: right center;
+    }
+
+    /* Sombra dinámica del libro */
+    .book::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 3px;
+      height: 90%;
+      background: linear-gradient(180deg, 
+        transparent 0%,
+        rgba(0, 0, 0, 0.3) 20%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.3) 80%,
+        transparent 100%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 5;
+      transition: all 0.85s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .book.turn-left::after {
+      opacity: 0.3;
+      transform: translate(-50%, -50%) translateX(-15px) scaleX(1.5);
+    }
+
+    .book.turn-right::after {
+      opacity: 0.3;
+      transform: translate(-50%, -50%) translateX(15px) scaleX(1.5);
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .book {
+        grid-template-columns: 1fr;
+        max-height: none;
+      }
+
+      .page-illustration {
+        min-height: 220px;
+        order: -1;
+      }
+
+      .page-footer {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+    <h1>La luciérnaga que guardaba caminos</h1>
+    <p class="subtitle">Haz clic en la luciérnaga para encender su luz ✨ y usa las flechas para pasar de página.</p>
+
+    <div class="book-wrapper">
+      <div class="book" id="book">
+        <!-- Lado de texto -->
+        <div class="page-content">
+          <div>
+            <h2 class="page-title" id="page-title"></h2>
+            <p class="page-text" id="page-text"></p>
+            <div class="page-question" id="page-question"></div>
+          </div>
+          <div class="page-footer">
+            <span id="page-number"></span>
+            <span>Literatura infantil colombiana</span>
+          </div>
+        </div>
+
+        <!-- Lado de ilustración -->
+        <div class="page-illustration">
+          <img id="page-image" src="" alt="Ilustración del cuento" />
+          <div class="firefly" id="firefly" title="Haz clic para encender o apagar la luz">✨</div>
+          <div class="firefly-hint">Toca la luciérnaga</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="prev-btn">
+        ⬅️ Página anterior
+      </button>
+      <span class="page-indicator" id="page-indicator"></span>
+      <button class="btn" id="next-btn">
+        Página siguiente ➡️
+      </button>
+    </div>
+
+    <div class="author-section">
+      <img src="img/miguel.jpg" alt="Miguel Oswaldo Velasco Herrera" class="author-image">
+      <div class="author-label">Autor de la actividad:</div>
+      <div class="author-name">Miguel Oswaldo Velasco Herrera</div>
+      <div class="author-cel">Celular: 3003854183 Email: miguel.velasco@uniminuto.edu.co</div>
+    </div>
+
+    <!-- Juego de Memoria -->
+    <div class="memory-game-section">
+      <h2 class="memory-game-title">🧠 Juego de Memoria: ¡Encuentra las parejas!</h2>
+      <p class="memory-game-subtitle">Haz clic en las tarjetas para voltearlas y encontrar las parejas de imágenes del cuento</p>
+      
+      <div class="memory-stats">
+        <div class="stat">
+          <span>💯 Intentos:</span>
+          <span class="stat-value" id="moves">0</span>
+        </div>
+        <div class="stat">
+          <span>⭐ Parejas encontradas:</span>
+          <span class="stat-value" id="pairs">0/7</span>
+        </div>
+      </div>
+
+      <div class="win-message" id="winMessage">🎉 ¡Felicidades! Has completado el juego 🎉</div>
+
+      <div class="memory-grid" id="memoryGrid"></div>
+
+      <div class="memory-controls">
+        <button class="reset-btn" id="resetGame">🔄 Reiniciar Juego</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Páginas del cuento sintetizado
+    const pages = [
+      {
+        title: "1. Lila y la montaña",
+        text:
+          "En lo alto de las montañas de Colombia vivía Lila, una luciérnaga muy curiosa. " +
+          "Podía encender su luz incluso de día, pero a veces le daba pena brillar frente a los demás.",
+        question: "¿Te ha pasado alguna vez que te da pena mostrar algo en lo que eres bueno?",
+        image: "img/lila.png"
+      },
+      {
+        title: "2. El juego en el río",
+        text:
+          "Una tarde, los niños del pueblo bajaron al río a jugar. Corrían, reían y salpicaban agua sin notar " +
+          "que el cielo se estaba poniendo gris y la tormenta se acercaba en silencio.",
+        question: "¿Qué te gusta hacer cuando vas a un río, lago o parque?",
+        image: "img/niños.png"
+      },
+      {
+        title: "3. Caminos oscuros",
+        text:
+          "De repente, el viento sopló fuerte, las nubes taparon el sol y el camino de regreso casi no se veía. " +
+          "Los niños se asustaron porque no encontraban la vereda que los llevaba al pueblo.",
+        question: "¿Qué crees que sintieron los niños en ese momento?",
+        image: "img/camino.png"
+      },
+      {
+        title: "4. La luz que guía",
+        text:
+          "Entonces apareció un pequeño punto amarillo entre la neblina. Era Lila, brillando más que nunca. " +
+          "Volaba despacio frente a ellos, iluminando cada piedra y cada curva del sendero.",
+        question: "Si fueras una luciérnaga como Lila, ¿a quién te gustaría ayudar a encontrar el camino?",
+        image: "img/luz.png"
+      },
+      {
+        title: "5. Un pueblo agradecido",
+        text:
+          "Cuando llegaron al pueblo, los niños contaron que una luciérnaga los había salvado. " +
+          "Los abuelos sonrieron y dijeron que las montañas siempre cuidan a quienes aman la tierra.",
+        question: "¿Qué cosas de la naturaleza crees que debemos cuidar más en tu barrio o ciudad?",
+        image: "img/pueblo.png"
+      },
+      {
+        title: "6. Un pueblo unido",
+        text:
+          "El pueblo entero se reunió para celebrar. Los niños estaban a salvo y todos aprendieron " +
+          "la importancia de cuidar y respetar la naturaleza que los rodeaba.",
+        question: "¿Cómo crees que podemos agradecer a la naturaleza por todo lo que nos da?",
+        image: "img/pueblo1.png"
+      },
+      {
+        title: "7. Tu propia luz",
+        text:
+          "Esa noche, Lila comprendió que su luz no era para esconderla, sino para compartirla. " +
+          "Cada niño también tiene una luz: puede ser ayudar, escuchar, cuidar o enseñar algo nuevo.",
+        question:
+          "Piensa y completa: \"Mi luz especial es...\". ¿Cómo puedes usarla para ayudar a otras personas?",
+        image: "img/fin.png"
+      }
+    ];
+
+    const titleEl = document.getElementById("page-title");
+    const textEl = document.getElementById("page-text");
+    const questionEl = document.getElementById("page-question");
+    const imageEl = document.getElementById("page-image");
+    const pageNumberEl = document.getElementById("page-number");
+    const pageIndicatorEl = document.getElementById("page-indicator");
+    const fireflyEl = document.getElementById("firefly");
+    const bookEl = document.getElementById("book");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    let currentPage = 0;
+    let turning = false;
+
+    function renderPage(index, direction = "none") {
+      if (index < 0 || index >= pages.length) return;
+
+      // pequeña animación de giro
+      if (direction === "left") {
+        bookEl.classList.add("turn-left");
+      } else if (direction === "right") {
+        bookEl.classList.add("turn-right");
+      }
+
+      const page = pages[index];
+      titleEl.textContent = page.title;
+      textEl.textContent = page.text;
+      questionEl.textContent = page.question;
+      imageEl.src = page.image;
+      imageEl.alt = page.title;
+
+      pageNumberEl.textContent = `Página ${index + 1} de ${pages.length}`;
+      pageIndicatorEl.textContent = `Página ${index + 1}/${pages.length}`;
+
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === pages.length - 1;
+
+      // apagar la luciérnaga por defecto en cada página
+      fireflyEl.classList.remove("off");
+
+      // quitar clase de animación después de un momento
+      setTimeout(() => {
+        bookEl.classList.remove("turn-left", "turn-right");
+        turning = false;
+      }, 850);
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 0 && !turning) {
+        turning = true;
+        currentPage--;
+        renderPage(currentPage, "left");
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentPage < pages.length - 1 && !turning) {
+        turning = true;
+        currentPage++;
+        renderPage(currentPage, "right");
+      }
+    });
+
+    // Encender / apagar luciérnaga
+    fireflyEl.addEventListener("click", () => {
+      fireflyEl.classList.toggle("off");
+    });
+
+    // Página inicial
+    renderPage(currentPage);
+
+    // ===== JUEGO DE MEMORIA =====
+    const memoryImages = [
+      "img/lila.png",
+      "img/niños.png",
+      "img/camino.png",
+      "img/luz.png",
+      "img/pueblo.png",
+      "img/pueblo1.png",
+      "img/fin.png"
+    ];
+
+    let memoryCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let moves = 0;
+    let canFlip = true;
+
+    function initMemoryGame() {
+      // Duplicar las imágenes para crear parejas
+      memoryCards = [...memoryImages, ...memoryImages]
+        .sort(() => Math.random() - 0.5)
+        .map((img, index) => ({
+          id: index,
+          image: img,
+          flipped: false,
+          matched: false
+        }));
+
+      renderMemoryGrid();
+      matchedPairs = 0;
+      moves = 0;
+      updateStats();
+      document.getElementById("winMessage").classList.remove("show");
+    }
+
+    function renderMemoryGrid() {
+      const grid = document.getElementById("memoryGrid");
+      grid.innerHTML = "";
+
+      memoryCards.forEach(card => {
+        const cardEl = document.createElement("div");
+        cardEl.className = "memory-card";
+        cardEl.dataset.id = card.id;
+
+        cardEl.innerHTML = `
+          <div class="card-front">✨</div>
+          <div class="card-back">
+            <img src="${card.image}" alt="Imagen del cuento">
+          </div>
+        `;
+
+        cardEl.addEventListener("click", () => handleCardClick(card.id));
+        grid.appendChild(cardEl);
+      });
+    }
+
+    function handleCardClick(cardId) {
+      if (!canFlip) return;
+
+      const card = memoryCards.find(c => c.id === cardId);
+      if (card.flipped || card.matched) return;
+
+      // Voltear la carta
+      card.flipped = true;
+      const cardEl = document.querySelector(`[data-id="${cardId}"]`);
+      cardEl.classList.add("flipped");
+      flippedCards.push(card);
+
+      // Si hay dos cartas volteadas, verificar si coinciden
+      if (flippedCards.length === 2) {
+        canFlip = false;
+        moves++;
+        updateStats();
+
+        setTimeout(() => checkMatch(), 1000);
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+
+      if (card1.image === card2.image) {
+        // ¡Coinciden!
+        card1.matched = true;
+        card2.matched = true;
+        document.querySelector(`[data-id="${card1.id}"]`).classList.add("matched");
+        document.querySelector(`[data-id="${card2.id}"]`).classList.add("matched");
+        matchedPairs++;
+        updateStats();
+
+        // Verificar si el juego está completo
+        if (matchedPairs === memoryImages.length) {
+          setTimeout(() => {
+            document.getElementById("winMessage").classList.add("show");
+          }, 500);
+        }
+      } else {
+        // No coinciden, voltear de nuevo
+        setTimeout(() => {
+          card1.flipped = false;
+          card2.flipped = false;
+          document.querySelector(`[data-id="${card1.id}"]`).classList.remove("flipped");
+          document.querySelector(`[data-id="${card2.id}"]`).classList.remove("flipped");
+        }, 300);
+      }
+
+      flippedCards = [];
+      canFlip = true;
+    }
+
+    function updateStats() {
+      document.getElementById("moves").textContent = moves;
+      document.getElementById("pairs").textContent = `${matchedPairs}/${memoryImages.length}`;
+    }
+
+    document.getElementById("resetGame").addEventListener("click", initMemoryGame);
+
+    // Iniciar el juego al cargar la página
+    initMemoryGame();
+  </script>
+</body>
+</html>
